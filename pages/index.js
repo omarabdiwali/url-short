@@ -1,5 +1,7 @@
-import Image from "next/image";
+import isUrl from "is-url";
+import { enqueueSnackbar } from "notistack";
 import { Geist, Geist_Mono } from "next/font/google";
+import { useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,103 +14,79 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [shortenedUrl, setShortenedUrl] = useState("");
+
+  const onChange = (e) => {
+    setUrl(e.target.value);
+  }
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    let trimUrl = url.trim();
+    if (!isUrl(trimUrl)) {
+      enqueueSnackbar("URL is not valid.", { variant: "info", autoHideDuration: 3000 });
+      return;
+    }
+
+    setLoading(true);
+
+    fetch("/api/add", {
+      method: "POST",
+      body: JSON.stringify({ url: trimUrl })
+    }).then(res => res.json()).then(data => {
+      if (data.kind === "error") {
+        enqueueSnackbar(data.message, { variant: 'error', autoHideDuration: 3000 })
+      } else {
+        setShortenedUrl(data.message);
+      }
+      setLoading(false);
+    }).catch(err => console.error(err))
+  }
+
   return (
     <div
       className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
     >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+      <main className="flex flex-col gap-3 row-start-2 items-center sm:items-start">
+        <h1 className="font-bold">URL Shortener</h1>
+        <form onSubmit={onSubmit}>
+          <input value={url} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="URL"></input>
+        </form>
+        {loading ? (
+          <div className="flex justify-center mt-4">
+            <svg
+              className="animate-spin h-16 w-16 text-blue-500"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 50 50"
+            >
+              <circle
+                className="opacity-25"
+                cx="25"
+                cy="25"
+                r="20"
+                stroke="currentColor"
+                strokeWidth="5"
+                fill="none"
+              ></circle>
+              <circle
+                className="opacity-75"
+                cx="25"
+                cy="25"
+                r="20"
+                stroke="currentColor"
+                strokeWidth="5"
+                fill="none"
+                strokeDasharray="126.92"
+                strokeDashoffset="63.46"
+              ></circle>
+            </svg>
+          </div>
+        ) : ""}
+        { shortenedUrl ? <div>Shortened URL is: <a rel="noopener norefferrer" className="hover:underline text-sky-400" target="__blank" href={shortenedUrl}>{shortenedUrl}</a></div> : "" }
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
     </div>
   );
 }
