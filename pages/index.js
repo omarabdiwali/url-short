@@ -52,7 +52,7 @@ export default function Home() {
       <main className="flex flex-col gap-3 row-start-2 items-center sm:items-start">
         <h1 className="font-bold">URL Shortener</h1>
         <form onSubmit={onSubmit}>
-          <input value={url} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="URL"></input>
+          <input value={url} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="https://example.com"></input>
         </form>
         {loading ? (
           <div className="flex justify-center mt-4">
