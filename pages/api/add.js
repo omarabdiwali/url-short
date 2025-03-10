@@ -8,7 +8,9 @@ let nanoid = customAlphabet(alphabet, idLength);
 
 const getNormalizedURL = (url) => {
   let urlClass = new URL(url);
-  return urlClass.origin.toLowerCase() + urlClass.pathname;
+  let normal = urlClass.origin.toLowerCase() + urlClass.pathname;
+  if (normal.at(-1) != '/') normal += '/';
+  return normal;
 }
 
 export default async function handler(req, res) {
