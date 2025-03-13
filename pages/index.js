@@ -84,7 +84,7 @@ export default function Home() {
             </svg>
           </div>
         ) : ""}
-        { shortenedUrl ? <div>Shortened URL is: <a rel="noopener norefferrer" className="hover:underline text-sky-400" target="__blank" href={shortenedUrl}>{shortenedUrl}</a></div> : "" }
+        { shortenedUrl && !loading ? <div>Shortened URL is: <a rel="noopener norefferrer" className="hover:underline text-sky-400" target="__blank" href={shortenedUrl}>{shortenedUrl}</a></div> : "" }
       </main>
 
     </div>

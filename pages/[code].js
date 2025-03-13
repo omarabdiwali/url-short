@@ -14,4 +14,8 @@ export default function Home() {
       .catch(err => console.error(err));
 
   }, [router.isReady])
+
+  return (
+    <div>Redirecting...</div>
+  )
 }
